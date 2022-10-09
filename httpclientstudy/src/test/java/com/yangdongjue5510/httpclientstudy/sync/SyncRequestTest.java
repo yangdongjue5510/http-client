@@ -1,10 +1,11 @@
 package com.yangdongjue5510.httpclientstudy.sync;
 
 import static com.yangdongjue5510.httpclientstudy.HttpClientSupport.httpClient;
+import static com.yangdongjue5510.httpclientstudy.RequestTest.EXTERNAL_API_ORIGIN;
+import static com.yangdongjue5510.httpclientstudy.RequestTest.OBJECT_MAPPER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yangdongjue5510.httpclientstudy.dto.RequestDto;
 import com.yangdongjue5510.httpclientstudy.dto.ResponseDto;
 import java.io.IOException;
@@ -23,15 +24,12 @@ import org.springframework.http.MediaType;
  */
 class SyncRequestTest {
 
-    private final String externalApiOrigin = "http://localhost:8080";
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
     @Test
     @DisplayName("동기 방식으로 GET 요청을 보낸다.")
     void requestGetSync() throws IOException, InterruptedException {
         // given
         // 예시 컨트롤러에서 요청이 갈 수 있도록 request를 만들어본다.
-        final HttpRequest request = HttpRequest.newBuilder(URI.create(externalApiOrigin + "/sync"))
+        final HttpRequest request = HttpRequest.newBuilder(URI.create(EXTERNAL_API_ORIGIN + "/sync"))
                 .GET()
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .build();
@@ -44,7 +42,7 @@ class SyncRequestTest {
         // then
         assertAll(
                 () -> assertThat(response.statusCode()).isEqualTo(200),
-                () -> assertThat(objectMapper.readValue(response.body(), ResponseDto.class))
+                () -> assertThat(OBJECT_MAPPER.readValue(response.body(), ResponseDto.class))
                         .usingRecursiveComparison().isEqualTo(new ResponseDto("GET sync request success"))
         );
     }
@@ -55,8 +53,8 @@ class SyncRequestTest {
         // given
         // 예시 컨트롤러에 POST 요청이 갈 수 있도록 HttpRequest를 만들어보자.
         // BodyPublishers는 RequestBody를 어떤 방식으로 직렬화 할 것인지 정의한다.
-        final String requestDtoString = objectMapper.writeValueAsString(new RequestDto("Hello"));
-        final HttpRequest request = HttpRequest.newBuilder(URI.create(externalApiOrigin + "/sync"))
+        final String requestDtoString = OBJECT_MAPPER.writeValueAsString(new RequestDto("Hello"));
+        final HttpRequest request = HttpRequest.newBuilder(URI.create(EXTERNAL_API_ORIGIN + "/sync"))
                 .POST(BodyPublishers.ofString(requestDtoString))
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -69,7 +67,7 @@ class SyncRequestTest {
         // then
         assertAll(
                 () -> assertThat(response.statusCode()).isEqualTo(200),
-                () -> assertThat(response.body()).isEqualTo(objectMapper.writeValueAsString(new ResponseDto("Hello success")))
+                () -> assertThat(response.body()).isEqualTo(OBJECT_MAPPER.writeValueAsString(new ResponseDto("Hello success")))
         );
     }
 }
